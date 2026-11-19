@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: pulsear-educational-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PULSEAR_PUBLIC_DEMO
+        value: "true"
+      - key: PULSEAR_DB_PATH
+        value: /tmp/pulsear.db
+      - key: PULSEAR_UPLOAD_DIR
+        value: /tmp/pulsear-uploads

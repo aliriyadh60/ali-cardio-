@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>طوارئ مستشفى الكندي التعليمي</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">✚</div><div><b>طوارئ مستشفى الكندي</b><small>التعليمي</small></div></div>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item active" data-page="overview">◈ &nbsp; Overview</a>
+    <a class="nav-item" data-page="library">♡ &nbsp; Cardiac Diseases Library</a>
+    <a class="nav-item">♡ &nbsp; Cardiac Model</a>
+    <a class="nav-item">∿ &nbsp; ECG Records</a>
+    <a class="nav-item">◉ &nbsp; Simulation</a>
+    <div class="sidebar-bottom"><div class="demo-chip">DEMO ENVIRONMENT</div><small>Prototype 0.1.0</small></div>
+  </aside>
+  <main class="main">
+    <div id="overviewPage">
+    <header class="topbar">
+      <div><div class="eyebrow">CARDIOVASCULAR WORKSPACE</div><h1>Patient Overview</h1></div>
+      <div class="top-actions"><span class="status-dot"></span><span>Local server</span><span class="avatar">D</span></div>
+    </header>
+    <section class="patient-row">
+      <div><div class="eyebrow">DEMO PATIENT</div><h2>Patient PT-000124</h2><p>Sample profile · No real patient data</p></div>
+      <div class="patient-tag">SIMULATION MODE</div>
+    </section>
+    <section class="metrics-grid">
+      <article class="metric"><span>HEART RATE</span><strong id="hrValue">78 <small>bpm</small></strong><em>Entered demo value</em></article>
+      <article class="metric"><span>BLOOD PRESSURE</span><strong id="bpValue">120/80 <small>mmHg</small></strong><em>Entered demo value</em></article>
+      <article class="metric"><span>SpO₂</span><strong id="spo2Value">98 <small>%</small></strong><em>Entered demo value</em></article>
+      <article class="metric"><span>RESPIRATORY RATE</span><strong id="rrValue">16 <small>/min</small></strong><em>Entered demo value</em></article>
+    </section>
+    <section class="content-grid">
+      <article class="panel heart-panel">
+        <div class="panel-head"><div><div class="eyebrow">3D ANATOMY</div><h3>Cardiac Model</h3></div><span class="live-pill">● ANATOMICAL MODEL</span></div>
+        <div id="heartStage"><div id="heartLoading">Loading 3D heart model…</div></div>
+        <div class="model-caption"><span>Interactive segmented anatomy · Educational model</span><span id="beatLabel">Baseline animation</span></div>
+      </article>
+      <article class="panel input-panel">
+        <div class="panel-head"><div><div class="eyebrow">PATIENT INPUT</div><h3>Vital Measurements</h3></div></div>
+        <form id="vitalsForm">
+          <label>Systolic BP <input id="sys" type="number" min="50" max="260" value="120" required></label>
+          <label>Diastolic BP <input id="dia" type="number" min="20" max="160" value="80" required></label>
+          <label>Heart rate <input id="hr" type="number" min="20" max="250" value="78" required></label>
+          <label>SpO₂ (%) <input id="spo2" type="number" min="50" max="100" step="0.1" value="98" required></label>
+          <label>Respiratory rate <input id="rr" type="number" min="4" max="70" value="16" required></label>
+          <label>Stroke Volume (mL) <input id="sv" type="number" min="1" max="250" step="0.1" placeholder="Enter stroke volume (optional)"></label>
+          <button type="submit" class="primary-btn">Save & Update Model</button>
+        </form>
+        <div id="inputMessage" class="message">Values are synthetic demo inputs.</div>
+      </article>
+    </section>
+
+    <section class="camera-grid">
+      <article class="panel camera-panel">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">LIVE INPUT</div>
+            <h3>MacBook Camera</h3>
+          </div>
+          <span id="cameraStatus" class="live-pill">● CAMERA OFF</span>
+        </div>
+        <div class="camera-stage">
+          <video id="cameraVideo" autoplay muted playsinline></video>
+          <div id="cameraPlaceholder">Camera is currently stopped</div>
+        </div>
+        <div class="camera-controls">
+          <button id="cameraStart" class="primary-btn" type="button">Start Camera</button>
+          <button id="cameraStop" class="secondary-btn" type="button" disabled>Stop Camera</button>
+        </div>
+        <div class="camera-controls">
+          <button id="captureECG" class="primary-btn" type="button" disabled>Capture ECG</button>
+          <button id="saveECG" class="secondary-btn" type="button" disabled>Save ECG</button>
+        </div>
+        <p id="cameraInfo" class="subtle">Live camera input · Educational prototype only</p>
+        <div id="ecgCapturePanel" class="ecg-capture-panel" hidden>
+          <h4>Captured ECG Preview</h4>
+          <img id="ecgPreview" alt="Captured ECG preview">
+          <p id="captureInfo" class="subtle">Image captured. Review before saving.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="lower-grid">
+      <article class="panel">
+        <div class="panel-head"><div><div class="eyebrow">MODEL OUTPUT</div><h3>Cardiovascular Simulation</h3></div></div>
+        <div class="result-grid">
+          <div><span>Pulse pressure</span><b id="ppResult">40 mmHg</b></div>
+          <div><span>Estimated MAP</span><b id="mapResult">93.3 mmHg</b></div>
+          <div><span>Cardiac output</span><b id="coResult">Unavailable</b></div>
+        </div>
+        <p id="coStatus" class="subtle">Stroke volume not supplied; cardiac output is not inferred.</p>
+        <div id="limitations" class="notice">Educational model only. Not validated for clinical use.</div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><div class="eyebrow">ECG INGESTION</div><h3>Upload ECG File</h3></div></div>
+        <form id="ecgForm" class="upload-form">
+          <input id="ecgFile" type="file" accept=".png,.jpg,.jpeg,.pdf">
+          <button class="secondary-btn" type="submit">Upload file</button>
+        </form>
+        <p id="ecgMessage" class="subtle">Accepted formats: PNG, JPG, JPEG, PDF. Storage only in v0.1; no interpretation.</p>
+      </article>
+    </section>
+    </div>
+
+    <section id="cardiacLibraryPage" class="library-page" hidden>
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">CARDIOVASCULAR KNOWLEDGE BASE</div>
+          <h1>Cardiac Diseases Library</h1>
+          <p class="subtle">مكتبة أمراض القلب · مرجع تعليمي للتمريض</p>
+        </div>
+        <span class="live-pill">ARABIC + ENGLISH</span>
+      </header>
+
+      <div class="library-toolbar panel">
+        <label for="diseaseSearch">Search diseases / البحث عن مرض</label>
+        <input id="diseaseSearch" type="search" placeholder="Search by English or Arabic name...">
+        <label>Categories / التصنيفات</label>
+        <div id="diseaseCategoryChips" class="category-chips"></div>
+        <select id="diseaseCategory" hidden>
+          <option value="all">All categories · جميع التصنيفات</option>
+        </select>
+        <p id="diseaseCount" class="subtle">Loading disease library...</p>
+      </div>
+
+      <div class="library-layout">
+        <aside class="panel disease-results">
+          <h3>Diseases / الأمراض</h3>
+          <div id="diseaseList" class="disease-list"></div>
+        </aside>
+        <article id="diseaseDetails" class="panel disease-details">
+          <div class="library-empty">
+            <h2>اختر مرضاً من القائمة</h2>
+            <p>Choose a disease to view its bilingual educational summary.</p>
+          </div>
+        </article>
+      </div>
+      <p class="notice">Educational reference only. ECG patterns are not diagnostic by themselves. Clinical decisions require qualified healthcare professionals and the full patient assessment.</p>
+    </section>
+
+    <footer>طوارئ مستشفى الكندي التعليمي · نظام تعليمي ومساند للعمل</footer>
+  </main>
+</div>
+<script type="module" src="/static/app.js"></script>
+<script type="module" src="/static/cardiac-library.js"></script>
+</body>
+</html>
